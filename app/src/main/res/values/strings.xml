@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">BiometricSample</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+
+    <!-- main app strings-->
+    <string name="biometric_prompt_info_title">Biometric login for my app</string>
+    <string name="biometric_prompt_info_subtitle">Log in using your biometric credential</string>
+    <string name="security_update_is_required">Security update is required.</string>
+    <string name="biometric_status_is_unsupported">Biometric status is unsupported.</string>
+    <string name="biometric_status_is_unknown">Biometric status is unknown.</string>
+    <string name="biometric_status_is_fine">This app can authenticate using biometrics.</string>
+    <string name="no_biometric_features_available">No biometric features available on this device.</string>
+    <string name="biometric_features_are_currently_unavailable">Biometric features are currently unavailable.</string>
+    <string name="biometric_status_is_none_enrolled">Biometric status is none enrolled.</string>
+    <string name="new_biometric_has_been_enrolled">New biometric has been enrolled</string>
+    <string name="new_biometric_enrollment_has_been_cancelled">New biometric enrollment has been
+        cancelled</string>
+    <string name="wtf_case">Something went wrong</string>
+</resources>
