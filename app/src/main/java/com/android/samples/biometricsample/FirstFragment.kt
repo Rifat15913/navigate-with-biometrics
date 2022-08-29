@@ -33,7 +33,38 @@ class FirstFragment : Fragment() {
     private var executor: Executor? = null
     private var biometricPrompt: BiometricPrompt? = null
     private var biometricPromptInfo: BiometricPrompt.PromptInfo? = null
-    private var authLauncher: ActivityResultLauncher<Intent>? = null
+
+    private var securitySettingsLauncher: ActivityResultLauncher<Intent>? =
+        registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            context?.apply {
+                when (result.resultCode) {
+                    Activity.RESULT_OK -> {
+                        // get result here in result.data
+                        showMessageAndProceed(
+                            resId = R.string.new_biometric_has_been_enrolled,
+                        )
+                        biometricPromptInfo?.let { info ->
+                            biometricPrompt?.authenticate(info)
+                        }
+                    }
+
+                    Activity.RESULT_CANCELED -> {
+                        showMessageAndProceed(
+                            resId = R.string.new_biometric_enrollment_has_been_cancelled,
+                        )
+                    }
+
+                    else -> {
+                        showMessageAndProceed(
+                            resId = R.string.wtf_case,
+                            shouldShowToast = false,
+                        )
+                    }
+                }
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -69,12 +100,26 @@ class FirstFragment : Fragment() {
                 object : BiometricPrompt.AuthenticationCallback() {
                     override fun onAuthenticationError(
                         errorCode: Int,
-                        errString: CharSequence
+                        errorMessage: CharSequence
                     ) {
-                        super.onAuthenticationError(errorCode, errString)
-                        Timber.d("Biometric Auth :: Authentication error: $errString")
+                        super.onAuthenticationError(errorCode, errorMessage)
+                        Timber.d("Biometric Auth :: Authentication error: $errorMessage [$errorCode]")
 
-                        showToast("Authentication error: $errString")
+                        when (errorCode) {
+                            BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL,
+                            BiometricPrompt.ERROR_NO_BIOMETRICS -> {
+                                showDialog(
+                                    NoSecurityFoundDialogFragment(
+                                        title = errorMessage.toString(),
+                                        securitySettingsLauncher = securitySettingsLauncher,
+                                    ),
+                                )
+                            }
+
+                            else -> {
+                                showToast(errorMessage.toString())
+                            }
+                        }
                     }
 
                     override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
@@ -145,36 +190,8 @@ class FirstFragment : Fragment() {
                     showMessageAndProceed(
                         resId = R.string.biometric_status_is_none_enrolled,
                         callback = {
-                            authLauncher = registerForActivityResult(
-                                ActivityResultContracts.StartActivityForResult()
-                            ) { result ->
-                                when (result.resultCode) {
-                                    Activity.RESULT_OK -> {
-                                        // get result here in result.data
-                                        showMessageAndProceed(
-                                            resId = R.string.new_biometric_has_been_enrolled,
-                                        )
-                                        biometricPromptInfo?.let { info ->
-                                            biometricPrompt?.authenticate(info)
-                                        }
-                                    }
-
-                                    Activity.RESULT_CANCELED -> {
-                                        showMessageAndProceed(
-                                            resId = R.string.new_biometric_enrollment_has_been_cancelled,
-                                        )
-                                    }
-
-                                    else -> {
-                                        showMessageAndProceed(
-                                            resId = R.string.wtf_case,
-                                        )
-                                    }
-                                }
-                            }
-
                             // Prompts the user to create credentials that your app accepts.
-                            authLauncher?.launch(
+                            securitySettingsLauncher?.launch(
                                 Intent().apply {
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                                         action = Settings.ACTION_BIOMETRIC_ENROLL
@@ -212,12 +229,15 @@ class FirstFragment : Fragment() {
 
     private fun Context.showMessageAndProceed(
         @StringRes resId: Int,
+        shouldShowToast: Boolean = true,
         callback: (() -> Unit)? = null,
     ) {
         val message = getString(resId)
         Timber.e("Biometric Prompt :: $message")
 
-        showToast(message = message)
+        if(shouldShowToast)  {
+            showToast(message = message)
+        }
         callback?.invoke()
     }
 

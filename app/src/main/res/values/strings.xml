@@ -21,7 +21,9 @@
     <string name="biometric_features_are_currently_unavailable">Biometric features are currently unavailable.</string>
     <string name="biometric_status_is_none_enrolled">Biometric status is none enrolled.</string>
     <string name="new_biometric_has_been_enrolled">New biometric has been enrolled</string>
-    <string name="new_biometric_enrollment_has_been_cancelled">New biometric enrollment has been
+    <string name="new_biometric_enrollment_has_been_cancelled">Biometric enrollment has been
         cancelled</string>
     <string name="wtf_case">Something went wrong</string>
+    <string name="back">Back</string>
+    <string name="go_to_settings">Go to settings</string>
 </resources>
